@@ -1,10 +1,12 @@
 import NavGroupLogin from "./LoginField";
 import Logo from "./Logo";
 import SearchingField from "./SearchingField";
+import Colors from "@/constants/Colors";
+
 
 export default function Navbar() {
   return (
-    <div className="border-b shadow" style={{ backgroundColor: "#FF3179" }}>
+    <div style={{ backgroundColor: Colors.color1 }}>
       <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
         {/* mobile logo and btns */}
         <div className="flex justify-between pt-3 md:hidden lg:gap-8">
