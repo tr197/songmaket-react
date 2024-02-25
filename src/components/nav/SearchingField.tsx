@@ -33,9 +33,9 @@ export default function SearchingField() {
     { name: "How you like that" },
   ];
 
-  const SearchListView = searchList.map((item) => {
+  const SearchListView = searchList.map((item, idx) => {
     return (
-      <li key={item.name} className="h-20">
+      <li key={idx} className="h-20">
         <a>{item.name}</a>
       </li>
     );
