@@ -3,10 +3,14 @@ import { useState } from "react";
 import { classNames } from "@/services/utils/ui-suport";
 import { Song } from "@/types/song.types";
 import { PlayIcon } from "@heroicons/react/24/solid";
+import { useDispatch, useSelector } from "react-redux";
+import { setSongPlayer } from "@/store/player/slice";
 
 const SongItemCmpnt = ({ song }: { song: Song }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isHoveredImg, setIsHoveredImg] = useState(false);
+
+  const dispatch = useDispatch();
 
   return (
     <>
@@ -20,6 +24,7 @@ const SongItemCmpnt = ({ song }: { song: Song }) => {
             className="relative overflow-hidden bg-no-repeat bg-cover border-2 hover:border-green-400 hover:border-2 rounded-xl"
             onMouseEnter={() => setIsHoveredImg(true)}
             onMouseLeave={() => setIsHoveredImg(false)}
+            onClick={() => dispatch(setSongPlayer(song))}
           >
             <img
               src={song.image || "dfdsafasd"}
