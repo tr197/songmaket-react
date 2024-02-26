@@ -1,11 +1,76 @@
 import { InformationCircleIcon } from "@heroicons/react/20/solid";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { classNames } from "@/services/utils/ui-suport";
-import { Song } from "@/types/song.types";
+import { Song, SongSectionChoice } from "@/types/song.types";
 import { PlayIcon } from "@heroicons/react/24/solid";
 import { useDispatch } from "react-redux";
 import { setSongPlayer } from "@/store/player/slice";
-import { DEFAULT_SONG_IMAGE } from "@/constants/constants";
+import { DEFAULT_SONG_IMAGE, PAGE_SIZE } from "@/constants/constants";
+import Loading from "../utils/Loading";
+import { ListSong, fetchMoreTopSong } from "@/store/songs/slice";
+import { fetchMoreNewSong } from "@/store/songs/slice";
+import { AppDispatch } from "@/store/store";
+
+export default function SongsGroup({
+  songs,
+  sectionChoice,
+  total,
+}: {
+  songs: ListSong;
+  sectionChoice: SongSectionChoice;
+  total: number;
+}) {
+  const headerName = useMemo(() => {
+    if (sectionChoice === "new") {
+      return "New Songs";
+    }
+    if (sectionChoice === "top") {
+      return "Top Favorite Song";
+    }
+  }, [sectionChoice]);
+
+  const dispatch = useDispatch<AppDispatch>();
+  const onClickMoreSong = () => {
+    if (songs.data.length === total) {
+      return;
+    }
+    const newNageSong = songs.data.length / PAGE_SIZE + 1;
+    if (sectionChoice === "new") {
+      dispatch(fetchMoreNewSong(newNageSong));
+    } else if (sectionChoice === "top") {
+      dispatch(fetchMoreTopSong(newNageSong));
+    }
+  };
+
+  return (
+    <div className="mb-2 sm:mb-6">
+      <div className="py-3 border-b border-gray-300">
+        <h2 className="text-3xl font-bold tracking-tight text-gray-900">
+          {headerName}
+        </h2>
+      </div>
+
+      <div className="pr-4 mt-6 sm:pr-10">
+        <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 xl:gap-x-8">
+          {songs.data.map((song) => (
+            <SongItemCmpnt key={song.id} song={song} />
+          ))}
+        </div>
+        <div className="h-12 pl-2">
+          {songs.data.length < total && (
+            <button
+              className="text-xl italic font-bold text-gray-400 hover:text-sky-500"
+              onClick={onClickMoreSong}
+            >
+              See more...
+            </button>
+          )}
+          {songs.status === "loading" && <Loading />}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const SongItemCmpnt = ({ song }: { song: Song }) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -76,27 +141,3 @@ const SongItemCmpnt = ({ song }: { song: Song }) => {
     </>
   );
 };
-
-export default function SongsGroup({
-  songs,
-  headerName,
-}: {
-  songs: Song[];
-  headerName: string;
-}) {
-  return (
-    <div className="mb-8 sm:mb-12">
-      <div className="py-3 border-b border-gray-300">
-        <h2 className="text-3xl font-bold tracking-tight text-gray-900">
-          {headerName}
-        </h2>
-      </div>
-
-      <div className="grid grid-cols-1 pr-4 mt-6 sm:pr-10 gap-x-6 gap-y-10 sm:grid-cols-2 xl:gap-x-8">
-        {songs.map((song) => (
-          <SongItemCmpnt key={song.id} song={song} />
-        ))}
-      </div>
-    </div>
-  );
-}

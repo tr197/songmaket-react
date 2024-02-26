@@ -25,10 +25,15 @@ function HomePage() {
         </div>
         {listSongs && (
           <div>
-            <SongsGroup songs={listSongs.new_songs} headerName="New Songs" />
+            <SongsGroup
+              songs={listSongs.new_songs}
+              total={listSongs.total}
+              sectionChoice="new"
+            />
             <SongsGroup
               songs={listSongs.top_songs}
-              headerName="Top Listen Song"
+              total={listSongs.total}
+              sectionChoice="top"
             />
           </div>
         )}

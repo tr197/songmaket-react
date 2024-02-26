@@ -1,24 +1,43 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { Song } from "@/types/song.types";
+import { Song, SongParamsSearch } from "@/types/song.types";
 import AxiosApi from "@/services/api/AxiosApi";
 import ApiUrls from "@/services/api/ApiUrls";
+import { PAGE_SIZE } from "@/constants/constants";
 
 const IDLE = "idle";
 const LOADING = "loading";
 
-interface ListSongsData {
+type LoadingStatus = "idle" | "loading";
+
+interface ListSongsResp {
+  total: number;
   new_songs: Song[];
   top_songs: Song[];
 }
 
-export interface SongsState extends ListSongsData {
+export interface ListSong {
+  status: LoadingStatus;
+  data: Song[];
+}
+
+export interface SongsState {
+  new_songs: ListSong;
+  top_songs: ListSong;
   status: string;
+  total: number;
 }
 
 const initialState: SongsState = {
   status: IDLE,
-  new_songs: [],
-  top_songs: [],
+  total: 0,
+  new_songs: {
+    status: IDLE,
+    data: [],
+  },
+  top_songs: {
+    status: IDLE,
+    data: [],
+  },
 };
 
 const songsSlice = createSlice({
@@ -32,11 +51,36 @@ const songsSlice = createSlice({
       })
       .addCase(
         fetchHomeData.fulfilled,
-        (state, action: { payload: ListSongsData | false }) => {
+        (state, action: { payload: ListSongsResp | false }) => {
           if (action.payload) {
-            state.top_songs = action.payload.top_songs;
-            state.new_songs = action.payload.new_songs;
+            state.top_songs.data = action.payload.top_songs;
+            state.new_songs.data = action.payload.new_songs;
+            state.total = action.payload.total;
             state.status = IDLE;
+          }
+        }
+      )
+      .addCase(fetchMoreNewSong.pending, (state, _) => {
+        state.new_songs.status = LOADING;
+      })
+      .addCase(
+        fetchMoreNewSong.fulfilled,
+        (state, action: { payload: Song[] }) => {
+          if (action.payload) {
+            state.new_songs.data = [...state.new_songs.data, ...action.payload];
+            state.new_songs.status = IDLE;
+          }
+        }
+      )
+      .addCase(fetchMoreTopSong.pending, (state, _) => {
+        state.top_songs.status = LOADING;
+      })
+      .addCase(
+        fetchMoreTopSong.fulfilled,
+        (state, action: { payload: Song[] }) => {
+          if (action.payload) {
+            state.top_songs.data = [...state.top_songs.data, ...action.payload];
+            state.top_songs.status = IDLE;
           }
         }
       );
@@ -45,12 +89,48 @@ const songsSlice = createSlice({
 
 export const fetchHomeData = createAsyncThunk("home-data", async () => {
   try {
-    const resp = await AxiosApi.instance.get<ListSongsData>(ApiUrls.home);
+    const resp = await AxiosApi.instance.get<ListSongsResp>(ApiUrls.home);
     return resp.data;
   } catch (error) {
     console.log("[error when fetch home data]:", error);
     return false;
   }
 });
+
+export const fetchMoreNewSong = createAsyncThunk(
+  "new-songs",
+  async (page: number) => {
+    const params: SongParamsSearch = {
+      page: page,
+      page_size: PAGE_SIZE,
+      ordering: "-created_at",
+    };
+    return fetchMoreSong(params);
+  }
+);
+
+export const fetchMoreTopSong = createAsyncThunk(
+  "top-songs",
+  async (page: number) => {
+    const params: SongParamsSearch = {
+      page: page,
+      page_size: PAGE_SIZE,
+      ordering: "-view_count",
+    };
+    return fetchMoreSong(params);
+  }
+);
+
+const fetchMoreSong = async (params: SongParamsSearch) => {
+  try {
+    const resp = await AxiosApi.instance.get(ApiUrls.songs, {
+      params: params,
+    });
+    return resp.data.results;
+  } catch (error) {
+    console.log("[error when fetch song data]:", error);
+    return false;
+  }
+};
 
 export default songsSlice;
