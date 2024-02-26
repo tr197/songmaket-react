@@ -4,6 +4,9 @@ import "@/styles/audioplayer.css";
 import { useSelector } from "react-redux";
 import { PlayerState } from "@/store/player/slice";
 import { Song } from "@/types/song.types";
+import { useEffect } from "react";
+import AxiosApi from "@/services/api/AxiosApi";
+import ApiUrls from "@/services/api/ApiUrls";
 
 const SongItemCmpnt = ({ song }: { song: Song }) => {
   return (
@@ -31,6 +34,22 @@ export default function Player() {
   const playerStore = useSelector(
     (state: { player: PlayerState }) => state.player
   );
+
+  useEffect(() => {
+    async function increaseView() {
+      try {
+        if (playerStore.song) {
+          const resp = await AxiosApi.instance.post(ApiUrls.increaseSongView, {
+            song_id: playerStore.song.id,
+          });
+          console.log("increase-view response:", resp);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    increaseView();
+  }, [playerStore]);
 
   return (
     <div className="fixed bottom-0 w-full ">

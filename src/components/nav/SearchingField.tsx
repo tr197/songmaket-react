@@ -1,45 +1,93 @@
 import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import OutsideClickHandler from "react-outside-click-handler";
+import AxiosApi from "@/services/api/AxiosApi";
+import ApiUrls from "@/services/api/ApiUrls";
+import { Song } from "@/types/song.types";
+import { DEFAULT_SONG_IMAGE } from "@/constants/constants";
+import { useDispatch } from "react-redux";
+import { setSongPlayer } from "@/store/player/slice";
+
+interface Artist {
+  id: string;
+  name: string;
+}
+
+interface SearchingResponse {
+  artists_matches: Artist[];
+  songs_matches: Song[];
+}
+
+const SearchResultSongs = ({ songs }: { songs: Song[] }) => {
+  const dispatch = useDispatch();
+  const playSong = (song: Song) => {
+    dispatch(setSongPlayer(song));
+  };
+
+  return (
+    <ul className="">
+      {songs.map((song) => (
+        <li
+          key={song.id}
+          className="px-2 py-2 my-2 border-b border-gray-300 rounded-sm hover:bg-gray-200"
+        >
+          <button onClick={() => playSong(song)} className="flex space-x-2">
+            <img
+              src={song.image || DEFAULT_SONG_IMAGE}
+              alt=""
+              className="w-10 h-10 rounded-sm md:w-14 md:h-14"
+            />
+            <div>
+              <p className="text-sm font-semibold text-gray-600 md:text-base">
+                {song.title}
+              </p>
+            </div>
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+};
 
 export default function SearchingField() {
   const [searchText, setSearchText] = useState<string>("");
-  const [showSearchList, setShowSearchList] = useState<boolean>(true);
+  const [showSearchList, setShowSearchList] = useState<boolean>(false);
 
-  const searchList = [
-    { name: "How you like that" },
-    { name: "How you like that" },
-    { name: "How you like that" },
-    { name: "How you like that" },
-    { name: "How you like that" },
-    { name: "How you like that" },
-    { name: "How you like that" },
-    { name: "How you like that" },
-    { name: "How you like that" },
-    { name: "How you like that" },
-    { name: "How you like that" },
-    { name: "How you like that" },
-    { name: "How you like that" },
-    { name: "How you like that" },
-    { name: "How you like that" },
-    { name: "How you like that" },
-    { name: "How you like that" },
-    { name: "How you like that" },
-    { name: "How you like that" },
-    { name: "How you like that" },
-    { name: "How you like that" },
-    { name: "How you like that" },
-    { name: "How you like that" },
-    { name: "How you like that" },
-  ];
+  const [songResultItems, setSongResultItem] = useState<Song[]>([]);
 
-  const SearchListView = searchList.map((item, idx) => {
-    return (
-      <li key={idx} className="h-20">
-        <a>{item.name}</a>
-      </li>
-    );
-  });
+  useEffect(() => {
+    async function callSearchApi() {
+      if (!searchText) {
+        return;
+      }
+      try {
+        const resp = await AxiosApi.instance.get<SearchingResponse>(
+          ApiUrls.searching,
+          {
+            params: {
+              search_text: searchText,
+            },
+          }
+        );
+
+        setSongResultItem(resp.data.songs_matches);
+
+        console.log(searchText, resp);
+      } catch (error) {
+        console.log("searching error:", error);
+      }
+    }
+
+    callSearchApi();
+  }, [searchText]);
+
+  useEffect(() => {
+    if (songResultItems.length > 0) {
+      setShowSearchList(true);
+    } else {
+      setShowSearchList(false);
+    }
+  }, [songResultItems]);
 
   return (
     <OutsideClickHandler
@@ -72,17 +120,12 @@ export default function SearchingField() {
             />
 
             {/* search result */}
-            {searchList.length > 0 && showSearchList && (
-              <div className="z-50 absolute bg-gray-50 border-x border-b border-gray-300 shadow-xl w-full max-h-[42rem] md:max-h-[52rem] overflow-y-auto py-2 px-8 sm:px-11 mt-2 rounded-xl">
-                <ul className="pl-0.5"> {SearchListView} </ul>
+            {showSearchList && (
+              <div className="z-50 absolute bg-gray-50 border-x border-b border-gray-300 shadow-xl w-full max-h-[42rem] md:max-h-[52rem] overflow-y-auto py-2 px-3 sm:px-5 mt-2 rounded-xl">
+                <SearchResultSongs songs={songResultItems} />
               </div>
             )}
           </div>
-          {/* <button
-            className="w-20 h-12 text-sm bg-gray-800 sm:w-28 text-gray-50"
-          >
-            Search
-          </button> */}
         </div>
       </div>
     </OutsideClickHandler>

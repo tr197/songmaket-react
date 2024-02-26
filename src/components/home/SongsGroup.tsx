@@ -6,7 +6,6 @@ import { PlayIcon } from "@heroicons/react/24/solid";
 import { useDispatch } from "react-redux";
 import { setSongPlayer } from "@/store/player/slice";
 import { DEFAULT_SONG_IMAGE } from "@/constants/constants";
-import AxiosApi from "@/services/api/AxiosApi";
 
 const SongItemCmpnt = ({ song }: { song: Song }) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -16,14 +15,6 @@ const SongItemCmpnt = ({ song }: { song: Song }) => {
 
   const onListenSong = async () => {
     dispatch(setSongPlayer(song));
-    try {
-      const resp = await AxiosApi.instance.post("/api/increase-view/", {
-        song_id: song.id,
-      });
-      console.log("increase-view response:", resp);
-    } catch (error) {
-      console.log(error);
-    }
   };
 
   return (

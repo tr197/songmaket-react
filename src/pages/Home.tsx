@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import AxiosApi from "@/services/api/AxiosApi";
 import { Song } from "@/types/song.types";
 import Player from "@/components/home/Player";
+import ApiUrls from "@/services/api/ApiUrls";
 
 type ListHomeSong = {
   new_songs: Song[];
@@ -18,7 +19,7 @@ function HomePage() {
   useEffect(() => {
     async function getHomeSongs() {
       try {
-        const resp = await AxiosApi.instance.get<ListHomeSong>("/api/home/");
+        const resp = await AxiosApi.instance.get<ListHomeSong>(ApiUrls.home);
         console.log("resp:", resp);
         setListSongs(resp.data);
       } catch (err) {
