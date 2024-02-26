@@ -59,7 +59,7 @@ export default function Player() {
             <div className="w-full pt-5 bg-white">
               <AudioPlayer
                 src={playerStore.song.audio}
-                volume={0.8}
+                volume={0.5}
                 autoPlay={true}
               />
             </div>

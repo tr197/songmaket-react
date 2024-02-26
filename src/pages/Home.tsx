@@ -2,31 +2,18 @@ import Navbar from "@/components/nav/Navbar";
 import Banners from "@/components/home/Banners";
 import SongsGroup from "@/components/home/SongsGroup";
 import Footer from "@/components/footer/Footer";
-import { useEffect, useState } from "react";
-import AxiosApi from "@/services/api/AxiosApi";
-import { Song } from "@/types/song.types";
+import { useEffect } from "react";
 import Player from "@/components/home/Player";
-import ApiUrls from "@/services/api/ApiUrls";
-
-type ListHomeSong = {
-  new_songs: Song[];
-  top_songs: Song[];
-};
+import { fetchHomeData, SongsState } from "@/store/songs/slice";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch } from "@/store/store";
 
 function HomePage() {
-  const [listSongs, setListSongs] = useState<ListHomeSong | null>(null);
+  const dispatch = useDispatch<AppDispatch>();
+  const listSongs = useSelector((state: { songs: SongsState }) => state.songs);
 
   useEffect(() => {
-    async function getHomeSongs() {
-      try {
-        const resp = await AxiosApi.instance.get<ListHomeSong>(ApiUrls.home);
-        console.log("resp:", resp);
-        setListSongs(resp.data);
-      } catch (err) {
-        console.log(err);
-      }
-    }
-    getHomeSongs();
+    dispatch(fetchHomeData());
   }, []);
 
   return (
