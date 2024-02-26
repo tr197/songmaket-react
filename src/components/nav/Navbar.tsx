@@ -27,7 +27,7 @@ export default function Navbar() {
 
           <div className="flex items-center lg:justify-end">
             <div className="hidden md:flex md:items-center">
-              <NavGroupLogin></NavGroupLogin>
+              <NavGroupLogin />
             </div>
           </div>
         </div>
