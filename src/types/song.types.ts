@@ -15,3 +15,8 @@ export interface SongParamsSearch {
   page: number;
   page_size: number;
 }
+
+export interface Banner {
+  title: string;
+  image: string;
+}

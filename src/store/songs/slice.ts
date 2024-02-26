@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { Song, SongParamsSearch } from "@/types/song.types";
+import { Song, SongParamsSearch, Banner } from "@/types/song.types";
 import AxiosApi from "@/services/api/AxiosApi";
 import ApiUrls from "@/services/api/ApiUrls";
 import { PAGE_SIZE } from "@/constants/constants";
@@ -11,6 +11,7 @@ type LoadingStatus = "idle" | "loading";
 
 interface ListSongsResp {
   total: number;
+  banners: Banner[];
   new_songs: Song[];
   top_songs: Song[];
 }
@@ -23,6 +24,7 @@ export interface ListSong {
 export interface SongsState {
   new_songs: ListSong;
   top_songs: ListSong;
+  banners: Banner[];
   status: string;
   total: number;
 }
@@ -38,6 +40,12 @@ const initialState: SongsState = {
     status: IDLE,
     data: [],
   },
+  banners: [
+    {
+      title: "default",
+      image: "/images/banners/b1.png",
+    },
+  ],
 };
 
 const songsSlice = createSlice({
@@ -56,6 +64,7 @@ const songsSlice = createSlice({
             state.top_songs.data = action.payload.top_songs;
             state.new_songs.data = action.payload.new_songs;
             state.total = action.payload.total;
+            state.banners = action.payload.banners;
             state.status = IDLE;
           }
         }
