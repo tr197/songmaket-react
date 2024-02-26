@@ -3,14 +3,28 @@ import { useState } from "react";
 import { classNames } from "@/services/utils/ui-suport";
 import { Song } from "@/types/song.types";
 import { PlayIcon } from "@heroicons/react/24/solid";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { setSongPlayer } from "@/store/player/slice";
+import { DEFAULT_SONG_IMAGE } from "@/constants/constants";
+import AxiosApi from "@/services/api/AxiosApi";
 
 const SongItemCmpnt = ({ song }: { song: Song }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isHoveredImg, setIsHoveredImg] = useState(false);
 
   const dispatch = useDispatch();
+
+  const onListenSong = async () => {
+    dispatch(setSongPlayer(song));
+    try {
+      const resp = await AxiosApi.instance.post("/api/increase-view/", {
+        song_id: song.id,
+      });
+      console.log("increase-view response:", resp);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <>
@@ -24,10 +38,10 @@ const SongItemCmpnt = ({ song }: { song: Song }) => {
             className="relative overflow-hidden bg-no-repeat bg-cover border-2 hover:border-green-400 hover:border-2 rounded-xl"
             onMouseEnter={() => setIsHoveredImg(true)}
             onMouseLeave={() => setIsHoveredImg(false)}
-            onClick={() => dispatch(setSongPlayer(song))}
+            onClick={onListenSong}
           >
             <img
-              src={song.image || "dfdsafasd"}
+              src={song.image || DEFAULT_SONG_IMAGE}
               alt={song.title}
               className="object-cover object-center w-28 h-28 md:h-28 md:w-28 rounded-xl sm:h-24 sm:w-24"
             />
@@ -72,12 +86,18 @@ const SongItemCmpnt = ({ song }: { song: Song }) => {
   );
 };
 
-export default function SongsGroup({ songs }: { songs: Song[] }) {
+export default function SongsGroup({
+  songs,
+  headerName,
+}: {
+  songs: Song[];
+  headerName: string;
+}) {
   return (
-    <div>
+    <div className="mb-8 sm:mb-12">
       <div className="py-3 border-b border-gray-300">
         <h2 className="text-3xl font-bold tracking-tight text-gray-900">
-          New Song
+          {headerName}
         </h2>
       </div>
 

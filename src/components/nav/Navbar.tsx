@@ -3,7 +3,6 @@ import Logo from "./Logo";
 import SearchingField from "./SearchingField";
 import Colors from "@/constants/Colors";
 
-
 export default function Navbar() {
   return (
     <div style={{ backgroundColor: Colors.color1 }}>

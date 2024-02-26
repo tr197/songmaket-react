@@ -35,7 +35,15 @@ function HomePage() {
         <div className="pb-4 sm:pb-10">
           <Banners />
         </div>
-        {listSongs && <SongsGroup songs={listSongs.new_songs} />}
+        {listSongs && (
+          <div>
+            <SongsGroup songs={listSongs.new_songs} headerName="New Songs" />
+            <SongsGroup
+              songs={listSongs.top_songs}
+              headerName="Top Listen Song"
+            />
+          </div>
+        )}
       </div>
       <Player />
       <Footer />

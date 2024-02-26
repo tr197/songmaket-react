@@ -38,7 +38,11 @@ export default function Player() {
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="flex border-t border-gray-300">
             <div className="w-full pt-5 bg-white">
-              <AudioPlayer src={playerStore.song.audio} volume={0.8} />
+              <AudioPlayer
+                src={playerStore.song.audio}
+                volume={0.8}
+                autoPlay={true}
+              />
             </div>
 
             <div className="bg-gray-100 min-w-[20rem] max-w-[100rem] hidden sm:block">
